@@ -1,0 +1,85 @@
+server:
+  servlet:
+    context-path: /icommerce-service
+  port: ${SERVER_PORT:9009}
+spring:
+  application:
+    name: icommerce 
+  main:
+    allow-bean-definition-overriding: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant-path-matcher   
+  jpa:
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+          lob:
+            non_contextual_creation: 'true'
+    hibernate:
+      ddl-auto: create
+    show-sql: ${JPA_SHOW_SQL:true}
+    generate-ddl: false
+    database: POSTGRESQL
+  datasource:
+    url: ${POSTGRES_DB_URL:jdbc:postgresql://localhost:5433/compose-postgres}
+    username: ${POSTGRES_DB_USER_NAME:compose-postgres}
+    password: ${POSTGRES_DB_PASSWORD:compose-postgres}
+    driverClassName: org.postgresql.Driver
+  liquibase:
+    enabled: false
+    database-change-log-table: tracking_databasechangelog
+    database-change-log-lock-table: tracking_databasechangeloglock
+  elasticsearch: 
+    rest: 
+      uri: localhost:9200
+# health check
+management:
+  health:
+    livenessstate:
+      enabled: true
+    readynessstate:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    restart: 
+      enabled: true
+    shutdown:
+      enabled: true
+    health:
+      group:
+        liveness:
+          include: '*'
+        readiness:
+          include: '*'
+      show-details: always
+      probes:
+        enabled: true
+  metrics:
+    export:
+      jmx:
+        enabled: ${METRIC_JMX_ENALBED:true}
+      logging:
+        enabled: ${METRIC_LOGGING_ENALBED:false}
+    tags:
+      application-name: ${spring.application.name}
+logging:
+  file:
+    name: ${LOGGING_FILE_NAME:propzy_tracking_consume_service}
+    max-size: ${LOGGING_FILE_MAX_SIZE:10MB}
+    max-history: ${LOGGING_FILE_MAX_HISTORY:30}
+    path: ${LOGGING_PATH:/tmp/log}          
+config:
+  jwt:
+    jwtSecret: ${JWT_SECRET:jwt123O&###$)}
+    jwtExpiration: ${JWT_EXPIRATION:1000}
+  admin:
+    id: ${ADMIN_ID:1}
+    username: ${ADMIN_USERNAME:admin}
+  pagination:
+    number: ${DEFAULT_PAGINATION_NUMBER:0}  
+    size: ${DEFAULT_SIZE:20}    

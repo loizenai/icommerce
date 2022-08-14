@@ -1,0 +1,62 @@
+version: '2'
+
+services:
+  app:
+    image: 'icommerce-service-0.0.1:latest'
+    build:
+      context: .
+    container_name: app
+    restart: always
+    depends_on:
+      - db
+      - elasticsearch
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/compose-postgres
+      - SPRING_DATASOURCE_USERNAME=compose-postgres
+      - SPRING_DATASOURCE_PASSWORD=compose-postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=create
+      - SPRING_ELASTICSEARCH_REST_URI=elasticsearch:9200
+    ports:
+      - "9009:9009"
+    expose:
+      - 9009
+    networks:
+      - icommerce
+
+  db:
+    image: 'postgres:13.1-alpine'
+    container_name: db
+    environment:
+      - POSTGRES_USER=compose-postgres
+      - POSTGRES_PASSWORD=compose-postgres
+    ports:
+      - "5433:5432"
+    expose:
+      - 5433
+    networks:
+      - icommerce  
+      
+  elasticsearch:
+    image: elasticsearch:7.17.4
+    restart: always
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    expose:
+      - "9200"
+      - "9300"
+    networks:
+      - icommerce
+    healthcheck:
+      test: "curl -f http://localhost:9200 || exit 1"
+       
+networks:
+  icommerce:      
